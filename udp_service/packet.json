@@ -1,0 +1,53 @@
+{
+  "start_signature": {
+    "position": 0,
+    "length": 2,
+    "contents": "f0aa",
+    "required": 1,
+    "field_name": "",
+    "iterate": 0
+  },
+  "length": {
+    "position": 2,
+    "length": 2,
+    "required": 1,
+    "field_name": "",
+    "iterate": 0
+  },
+  "mac_address": {
+    "position": 4,
+    "length": 3,
+    "required": 1,
+    "field_name": "mac_address",
+    "iterate": 0
+  },
+  "timestamp": {
+    "position": 7,
+    "length": 4,
+    "required": 1,
+    "field_name": "_time",
+    "iterate": 0
+  },
+  "sensor_id": {
+    "position": 11,
+    "length": 1,
+    "required": 1,
+    "field_name": "sensor_name",
+    "iterate": 5
+  },
+  "value": {
+    "position": 12,
+    "length": 4,
+    "required": 1,
+    "field_name": "$sensor_name$",
+    "iterate": 5
+  },
+  "end_signature": {
+    "position": -2,
+    "length": 2,
+    "required": 1,
+    "contents": "f1aa",
+    "field_name": "",
+    "iterate": 0
+  }
+}
