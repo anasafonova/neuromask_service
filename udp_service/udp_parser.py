@@ -30,6 +30,63 @@ def is_packet(packet):
 def check_length(packet):
     return
 
+def check_value(comment, value, expected):
+    if value == expected:
+        logging.info("%s is correct" % comment)
+        return True
+    else:
+        logging.info("%s - error" % comment)
+        return False
+
+def get_value(field, cursor):
+    if field["type"] == "int":
+        return (int.from_bytes(packet[cursor:cursor + field["len"]],
+                               byteorder='little', signed=False),
+                cursor + field["len"])
+    elif field["type"] == "str":
+        return (binascii.hexlify(packet[cursor:cursor + field["len"]]),
+                cursor + field["len"])
+    elif field["type"] == "float":
+        return (struct.unpack('f', packet[cursor:cursor + field["len"]]),
+                cursor + field["len"])
+    elif field["type"] == "dict":
+        return (sensor_dict.get(
+            int.from_bytes(packet[cursor:cursor + field["len"]], byteorder='little', signed=False)),
+                cursor + field["len"])
+
+def parse_packet_data(packet, host, struct_conf):
+    packet_struct = struct_conf.get('packet_struct')
+    #logging.info(packet_struct)
+    logging.info("Received: %s", packet)
+    data = {}
+    cols = ['_time', 'host']
+    if has_mac:
+        cols.extend(['mac_address'])
+    cols.extend(sensor_dict.values())
+
+    cursor = 0
+
+    if not host:
+        data["host"] = host
+
+    for field in packet_struct:
+        if field["data"]:
+            if field["required"]:
+                (value, cursor) = get_value(field, cursor)
+                logging.info(field, " ", cursor)
+                if "expected" in field.keys():
+                    if not check_value(field["_comment"], value, field["expected"]):
+                        break
+                if field["to_df"]:
+                    data[field["name"]] = value
+        else:
+            if field["purpose"] == "loop":
+                if field["loop_type"] in field.keys():
+                    cmd = field["loop_type"] + field["decreased_value"] + ":"
+                    print(cmd)
+                    exec(cmd)
+
+
 
 def parse_data(packet, host, has_mac):
     logging.info("Received: %s", packet)
@@ -64,7 +121,7 @@ def parse_data(packet, host, has_mac):
 
     return data
 
-def read_data(finpath, foutpath, has_mac):
+def read_data(finpath, foutpath, struct_conf):
     global num_packets
 
     with open(foutpath, 'a+') as fout:
@@ -82,7 +139,7 @@ def read_data(finpath, foutpath, has_mac):
                         if UDP in packet:
                             host += str(packet[UDP].sport)
                         logging.info("Received packet from: %s\nPayload: %s", host, binascii.hexlify(bytes(packet[UDP].payload)))
-                        data = parse_data(bytes(packet[UDP].payload), host, has_mac)
+                        data = parse_packet_data(bytes(packet[UDP].payload), host, struct_conf)
                         if num_packets > 0:
                             fout.write(' , ')
                         json.dump(data, fout)
@@ -93,26 +150,28 @@ def read_data(finpath, foutpath, has_mac):
 if __name__ == '__main__':
     # Make sure all log messages show up
     logging.getLogger().setLevel(logging.DEBUG)
+    conf = import_config('config.json')
 
     inpath = conf.get('paths', {}).get('rawpath')
     outpath = conf.get('paths', {}).get('jsonpath')
-    has_mac = conf.get('output', {}).get('has_mac')
     num_files = conf.get('tcpdump', {}).get('num_files')
     file_size = conf.get('tcpdump', {}).get('batchsize')*1000000
     row_count = conf.get('output', {}).get('row_count')
+    struct_path = conf.get('paths', {}).get('packet_struct')
+    struct_conf = import_config(struct_path)
 
     while True:
         i = 0
-        while i < num_files:
+        while i < 1: #num_files:
             finpath = inpath + '{:02d}'.format(i)
             foutpath = outpath + '{:02d}'.format(i) + ".json"
-            read_data(finpath, foutpath, has_mac)
-            while os.path.getsize(finpath) < file_size - 50:
-                time.sleep(5)
-            if os.path.getsize(finpath) >= file_size - 50:
-                num_packets = 0
-                read_data(finpath, foutpath, has_mac)
-            i += 1
-            if i == num_files:
-                i = 0
-            time.sleep(1)
+            read_data(finpath, foutpath, struct_conf)
+            # while os.path.getsize(finpath) < file_size - 50:
+            #     time.sleep(5)
+            # if os.path.getsize(finpath) >= file_size - 50:
+            #     num_packets = 0
+            #     read_data(finpath, foutpath, has_mac)
+            # i += 1
+            # if i == num_files:
+            #     i = 0
+            # time.sleep(1)

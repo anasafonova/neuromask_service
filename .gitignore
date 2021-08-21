@@ -1,1 +1,8 @@
-udp_client/venv/ udp_service/venv/ udp_service/in udp_service/out
+./udp_client/venv/
+./udp_service/venv/
+./udp_service/in
+./udp_service/out
+./udp_service/idea
+./udp_service/__pycache__
+./udp_client/idea
+./udp_client/__pycache__

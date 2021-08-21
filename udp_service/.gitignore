@@ -1,1 +1,5 @@
-venv/ in/ out/
+./venv/
+./in/
+./out/
+./idea
+./__pycache__

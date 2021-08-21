@@ -1,53 +1,87 @@
 {
-  "start_signature": {
-    "position": 0,
-    "length": 2,
-    "contents": "f0aa",
-    "required": 1,
-    "field_name": "",
-    "iterate": 0
-  },
-  "length": {
-    "position": 2,
-    "length": 2,
-    "required": 1,
-    "field_name": "",
-    "iterate": 0
-  },
-  "mac_address": {
-    "position": 4,
-    "length": 3,
-    "required": 1,
-    "field_name": "mac_address",
-    "iterate": 0
-  },
-  "timestamp": {
-    "position": 7,
-    "length": 4,
-    "required": 1,
-    "field_name": "_time",
-    "iterate": 0
-  },
-  "sensor_id": {
-    "position": 11,
-    "length": 1,
-    "required": 1,
-    "field_name": "sensor_name",
-    "iterate": 5
-  },
-  "value": {
-    "position": 12,
-    "length": 4,
-    "required": 1,
-    "field_name": "$sensor_name$",
-    "iterate": 5
-  },
-  "end_signature": {
-    "position": -2,
-    "length": 2,
-    "required": 1,
-    "contents": "f1aa",
-    "field_name": "",
-    "iterate": 0
-  }
+  "packet_struct": [
+    {
+      "data": true,
+      "to_df": false,
+      "len": 2,
+      "expected": 61610,
+      "required": true,
+      "purpose": "control",
+      "type": "int",
+      "_comment": "start_signature"
+    },
+    {
+      "data": true,
+      "to_df": false,
+      "len": 2,
+      "required": true,
+      "expected": "len(packet) - 6",
+      "name": "packet_len",
+      "purpose": "var",
+      "type": "int",
+      "_comment": "length"
+    },
+    {
+      "data": true,
+      "to_df": true,
+      "len": 3,
+      "required": true,
+      "name": "mac_address",
+      "purpose": "data",
+      "type": "str",
+      "_comment": "mac_address"
+    },
+    {
+      "data": true,
+      "to_df": true,
+      "len": 4,
+      "required": true,
+      "name": "_time",
+      "purpose": "data",
+      "type": "int",
+      "_comment": "timestamp"
+    },
+    {
+      "data": false,
+      "purpose": "loop",
+      "id": 0,
+      "loop_type": "while",
+      "decreased_value": "(packet_len - 7) / 5"
+    },
+    {
+      "data": true,
+      "to_df": true,
+      "len": 1,
+      "required": true,
+      "name": "key",
+      "type": "dict",
+      "purpose": "key",
+      "_comment": "sensor_id"
+    },
+    {
+      "data": true,
+      "to_df": true,
+      "len": 1,
+      "required": true,
+      "name": "value",
+      "type": "float",
+      "purpose": "data",
+      "_comment": "sensor_data"
+    },
+    {
+      "data": false,
+      "purpose": "loop",
+      "id": 0
+    },
+    {
+      "data": true,
+      "to_df": false,
+      "len": 2,
+      "expected": 61866,
+      "required": true,
+      "purpose": "control",
+      "type": "int",
+      "_comment": "end_signature"
+    }
+  ]
 }

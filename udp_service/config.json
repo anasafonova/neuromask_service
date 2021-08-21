@@ -9,11 +9,11 @@
     "num_files": 9
   },
   "paths": {
-    "rawpath": "/home/anastasiia/PycharmProjects/neuro/udp_service/in/neurodata_20210819.pcap",
-    "jsonpath": "/home/anastasiia/PycharmProjects/neuro/udp_service/out/neurodata_20210819"
+    "packet_struct" : "/home/anastasiia/PycharmProjects/neuro/udp_service/packet.json",
+    "rawpath": "/home/anastasiia/PycharmProjects/neuro/udp_service/in/neurodata_20210813.pcap",
+    "jsonpath": "/home/anastasiia/PycharmProjects/neuro/udp_service/out/neurodata___"
   },
   "output" : {
-    "row_count": 5000,
-    "has_mac": 0
+    "row_count": 1
   }
 }
