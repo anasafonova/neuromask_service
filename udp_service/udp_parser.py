@@ -8,14 +8,10 @@ from config import import_config
 
 from scapy.layers.inet import UDP
 
-#num_files = 69
 num_packets = 0
 outfile_num = 0
 date = 0
 packet_len = 0
-#num_files = 0 #conf.get('tcpdump', {}).get('num_files')
-#inpath = 'in/neurodata_20210813.pcap'
-#outpath = 'out/data'
 
 sensor_dict = {16: "eco2", 17: "o2", 18: "t_body", 19: "humidity",
         20: "tvoc", 21: "pressure", 22: "t_ext", 23: "ecg",
@@ -43,6 +39,9 @@ def check_value(comment, value, expected):
         logging.info("%s - error" % comment)
         return False
 
+def prettify(mac_string):
+    return ':'.join('%02x' % ord(b) for b in mac_string)
+
 def get_value(packet, type, len, cursor):
     if type == "int":
         return (int.from_bytes(packet[cursor:cursor + len],
@@ -59,10 +58,13 @@ def get_value(packet, type, len, cursor):
         return (sensor_dict.get(
             int.from_bytes(packet[cursor:cursor + len], byteorder='little', signed=False)),
                 cursor + len)
+    elif type == "hex":
+        a = (b'b8f009' + binascii.hexlify(packet[cursor:cursor + len])).decode("ascii")
+        return (a, #prettify(a),
+                cursor + len)
 
 def parse_packet_data(packet, host, struct_conf):
     packet_struct = struct_conf.get('packet_struct')
-    #logging.info(packet_struct)
     logging.info("Received: %s", packet)
     data = {}
     cols = ['_time', 'host']
@@ -76,7 +78,6 @@ def parse_packet_data(packet, host, struct_conf):
 
     cursor = 0
 
-    #if host != "":
     data["host"] = host
 
     k = 0
@@ -139,45 +140,42 @@ def parse_packet_data(packet, host, struct_conf):
     return data
 
 
-def parse_data(packet, host, has_mac):
-    logging.info("Received: %s", packet)
-    data = {}
-    cols = ['_time', 'host']
-    if has_mac:
-        cols.extend(['mac_address'])
-    cols.extend(sensor_dict.values())
-    if ((binascii.hexlify(packet[:2]) == b'f0aa') and (binascii.hexlify(packet[-2:]) == b'f1aa')):
-        logging.info("Packet is correct")
-        length = int.from_bytes(packet[2:4], byteorder='little', signed=False)
-        if (length == (len(packet) - 6)):
-            logging.info("Length is correct")
-            i = 0
-            num_packets = (length - 7) / 5
-            if has_mac:
-                mac = int.from_bytes(packet[4 + i:4 + i + 3], byteorder='little', signed=False)
-                data["mac_address"] = mac
-            _time = int.from_bytes(packet[7 + i:7 + i + 4], byteorder='little', signed=False)
-            data["_time"] = _time
-            data["host"] = host
-            while i < num_packets:
-                sensor = sensor_dict.get(int.from_bytes(packet[11 + i * 5:12 + i * 5], byteorder='little', signed=False))
-                sensor_value = struct.unpack('f', packet[12 + i * 5:12 + i * 5 + 4])
-                data[sensor] = sensor_value[0]
-                i += 1
-            logging.info("%s", data)
-        else:
-            logging.info("incorrect length")
-    else:
-        logging.info("incorrect packet")
+# def parse_data(packet, host, has_mac):
+#     logging.info("Received: %s", packet)
+#     data = {}
+#     cols = ['_time', 'host']
+#     if has_mac:
+#         cols.extend(['mac_address'])
+#     cols.extend(sensor_dict.values())
+#     if ((binascii.hexlify(packet[:2]) == b'f0aa') and (binascii.hexlify(packet[-2:]) == b'f1aa')):
+#         logging.info("Packet is correct")
+#         length = int.from_bytes(packet[2:4], byteorder='little', signed=False)
+#         if (length == (len(packet) - 6)):
+#             logging.info("Length is correct")
+#             i = 0
+#             num_packets = (length - 7) / 5
+#             if has_mac:
+#                 mac = int.from_bytes(packet[4 + i:4 + i + 3], byteorder='little', signed=False)
+#                 data["mac_address"] = mac
+#             _time = int.from_bytes(packet[7 + i:7 + i + 4], byteorder='little', signed=False)
+#             data["_time"] = _time
+#             data["host"] = host
+#             while i < num_packets:
+#                 sensor = sensor_dict.get(int.from_bytes(packet[11 + i * 5:12 + i * 5], byteorder='little', signed=False))
+#                 sensor_value = struct.unpack('f', packet[12 + i * 5:12 + i * 5 + 4])
+#                 data[sensor] = sensor_value[0]
+#                 i += 1
+#             logging.info("%s", data)
+#         else:
+#             logging.info("incorrect length")
+#     else:
+#         logging.info("incorrect packet")
+#
+#     return data
 
-    return data
-
-def read_data(finpath, common_foutpath, struct_conf, row_count):
+def read_data(finpath, foutpath, struct_conf, row_count):
     global num_packets
-    #num_packets = 0
-
-    delta = (num_packets - num_packets % row_count) / row_count
-    foutpath = common_foutpath + str(delta)
+    num_packets = 0
 
     with open(foutpath, 'a+') as fout:
         logging.info(finpath)
@@ -187,10 +185,8 @@ def read_data(finpath, common_foutpath, struct_conf, row_count):
             if len(scapy_cap) > num_packets:
                 for j in range(num_packets, num_packets + len(scapy_cap)):
                     packet = scapy_cap[j]
-                    if j == 10:
-                        break
                     try:
-                        packet.show()
+                        #packet.show()
                         host = ""
                         if IP in packet:
                             host = packet[IP].src+":"
@@ -219,22 +215,9 @@ if __name__ == '__main__':
     struct_path = conf.get('paths', {}).get('packet_struct')
     struct_conf = import_config(struct_path)
 
-    while True:
-        i = 0
-        while i < 2: #num_files:
-            finpath = inpath + '{:02d}'.format(i)
-            foutpath = outpath + '{:02d}'.format(i) + ".json"
-            read_data(finpath, foutpath, struct_conf, row_count)
-            i += 1
-        if i == 2:
-            break
-
-            # while os.path.getsize(finpath) < file_size - 50:
-            #     time.sleep(5)
-            # if os.path.getsize(finpath) >= file_size - 50:
-            #     num_packets = 0
-            #     read_data(finpath, foutpath, has_mac)
-            # i += 1
-            # if i == num_files:
-            #     i = 0
-            # time.sleep(1)
+    i = 0
+    while i < num_files:
+        finpath = inpath + '{:02d}'.format(i)
+        foutpath = outpath + '{:02d}'.format(i) + ".json"
+        read_data(finpath, foutpath, struct_conf, row_count)
+        i += 1

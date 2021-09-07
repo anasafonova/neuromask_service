@@ -21,11 +21,13 @@ class UdpService():
         self.inputpath = conf.get('paths', {}).get('rawpath')
         subprocess.Popen(
             f'tcpdump -C {self.inputfile_size} -G {self.inputfile_rotate_time} ' +
-            f'-W {self.inputfile_num} -i enp3s0 -n udp port {self.port} ' +
+            f'-W {self.inputfile_num} -i any -n udp port {self.port} ' +
             f'-w {self.inputpath} -Z root',
             shell=True, close_fds=True)
 
     def get_packet(self, client, msg):
+        with open('neuromask.bin', 'ab') as fout:
+            fout.write(msg)
         hex = binascii.hexlify(msg)
         logging.info('%s', self.clients_list)
         logging.info('Received data from client %s: %s', client, hex)
