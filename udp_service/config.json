@@ -15,5 +15,14 @@
   },
   "output" : {
     "row_count": 1
+  },
+  "sensors": {
+    "16": "eco2", "17": "o2", "18": "t_body", "19": "humidity",
+    "20": "tvoc", "21": "pressure", "22": "t_ext", "23": "ecg",
+    "24": "ax", "25": "ay", "26": "az", "27": "gx", "28": "gy",
+    "29": "gz", "30": "mx", "31": "my", "32": "mz", "33": "spo2_red",
+    "34": "spo2_ir", "35": "spo2_green", "36": "spo2_lvl",
+    "37": "alt", "38": "hr", "39": "steps", "40": "pwr_lvl",
+    "41": "tvoc_ext", "42": "eco2_ext", "43": "hum_ext"
   }
 }
