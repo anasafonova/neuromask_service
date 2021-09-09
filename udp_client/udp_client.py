@@ -13,7 +13,7 @@ config_data = {}
 with open('config.json', 'r') as config_file:
     config_data = json.load(config_file)
 
-with open('data_real_ecg.bin', 'rb') as fin:
+with open('neuromask_.bin', 'rb') as fin:
     contents = binascii.hexlify(fin.read())
     sep = b'f1aa'
     cnts = contents.split(sep)

@@ -21,7 +21,16 @@
       "type": "int",
       "_comment": "length"
     },
-
+    {
+      "data": true,
+      "to_df": true,
+      "len": 3,
+      "required": true,
+      "name": "mac_address",
+      "purpose": "var",
+      "type": "hex",
+      "_comment": "mac_address"
+    },
     {
       "data": true,
       "to_df": true,
@@ -37,7 +46,7 @@
       "purpose": "loop",
       "id": 0,
       "loop_type": "while",
-      "decreased_value": "(packet_len - 4) / 5"
+      "decreased_value": "(packet_len - 7) / 5"
     },
     {
       "data": true,

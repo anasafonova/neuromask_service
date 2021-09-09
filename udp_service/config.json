@@ -1,17 +1,17 @@
 {
   "connection": {
-    "host": "127.0.0.1",
+    "host": "10.77.2.71",
     "port": 3333
   },
   "tcpdump": {
-    "batchsize": 50,
+    "batchsize": 1,
     "rotate_time": 18000,
-    "num_files": 9
+    "num_files": 100
   },
   "paths": {
     "packet_struct" : "/home/anastasiia/PycharmProjects/neuro/udp_service/packet.json",
-    "rawpath": "/home/anastasiia/PycharmProjects/neuro/udp_service/in/neurodata_20210813.pcap",
-    "jsonpath": "/home/anastasiia/PycharmProjects/neuro/udp_service/out/neurodata___"
+    "rawpath": "/home/anastasiia/PycharmProjects/neuro/udp_service/in/packet.pcap",
+    "jsonpath": "/home/anastasiia/PycharmProjects/neuro/udp_service/out/packet_out"
   },
   "output" : {
     "row_count": 1
