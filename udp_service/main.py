@@ -44,7 +44,7 @@ def main(config_file):
     while 1:
         if cores > 1:
             procs = []
-            for _ in range(conf.get('cores', 1)):
+            for _ in range(cores):
                 packets = reader.read_data()
                 p = Process(target=process_packets, args=(conf, packets))
                 p.start()
