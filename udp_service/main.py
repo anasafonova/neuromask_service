@@ -39,8 +39,10 @@ def main(config_file):
         delete_files=True
     )
 
+    cores = conf.get('cores', 0)
+
     while 1:
-        if conf.get('cores', 0) > 1:
+        if cores > 1:
             procs = []
             for _ in range(conf.get('cores', 1)):
                 packets = reader.read_data()

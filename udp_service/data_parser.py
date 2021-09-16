@@ -37,6 +37,7 @@ class BasicParser:
         return ':'.join('%02x' % ord(b) for b in mac_string)
 
     def get_value(self, packet, _type, _len, cursor):
+
         if _type == "int":
             return (int.from_bytes(packet[cursor:cursor + _len],
                                    byteorder='little', signed=False),

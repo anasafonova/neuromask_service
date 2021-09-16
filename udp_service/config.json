@@ -14,7 +14,7 @@
     "json": true,
     "log_dir": "log",
     "log_file": "neuroservice.log",
-    "level": "INFO",
+    "level": "ERROR",
     "stdout": true,
     "reflect": false
   },
