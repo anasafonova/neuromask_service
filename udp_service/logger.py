@@ -8,7 +8,6 @@ from pathlib import Path
 
 
 class SingletonClass:
-
     __instance = None
 
     def __new__(cls):
@@ -49,12 +48,14 @@ class Logger(SingletonClass):
                    json=None,
                    level=None,
                    stdout=True,
+                   reflect=True,
                    size=10,
                    keep=10,
                    date_format='DMY'):
         self.level = level or 'INFO'
         self.jsonify = json
-        self.stdout = stdout if stdout is not None else True
+        self.reflect = reflect
+        self.stdout = stdout
         self.date_format = date_format or 'DMY'
         self.logger = logging.getLogger('SuperLogger')
         self.logger.setLevel(Logger.logging_levels[self.level])
@@ -110,23 +111,13 @@ class Logger(SingletonClass):
 
     def _get_line(self,
                   *args,
-                  level,
-                  pid,
-                  module,
-                  func,
-                  line,
                   **kwargs):
 
         try:
             log = {
                 '_time': self._get_ts(),
-                'level': level,
-                'pid': pid,
-                'module': module,
-                'function': func,
-                'line': line,
-                'record': ' '.join([str(n) for n in args if n]),
-                **kwargs
+                **kwargs,
+                'record': ' '.join([str(n) for n in args if n])
             }
         except Exception as e:
             self.log(f'Wrong log call: {e}, {args}')
@@ -137,9 +128,9 @@ class Logger(SingletonClass):
         return ' '.join(
             (
                 str(n) for n in (
-                    log['_time'], log['level'], '-- PID', log['pid'],
-                    log['module'], log['function'], log['line'], '--', log['record'],
-                    ' '.join((f'{k} {v}' for k, v in kwargs.items())))
+                log['_time'], log['level'], '-- PID', log['pid'],
+                log['module'], log['function'], log['line'], '--', log['record'],
+                ' '.join((f'{k} {v}' for k, v in kwargs.items())))
             )
         )
 
@@ -156,15 +147,23 @@ class Logger(SingletonClass):
         if self.logging_levels.get(level.upper(), 0) < self.logging_levels[self.level]:
             return
 
-        call_frame = inspect.getouterframes(inspect.currentframe(), 2)
-        file_name = call_frame[1][1][call_frame[1][1].rfind('/') + 1:]  # Get the caller file name clearing the path
-        code_line_num = str(call_frame[1][2])
-        func_name = call_frame[1][3]
-        pid = os.getpid()
+        log_units = {}
+
+        if self.reflect:
+            call_frame = inspect.getouterframes(inspect.currentframe(), 2)
+            log_units.update(
+                module=call_frame[1][1][call_frame[1][1].rfind('/') + 1:],  # Get the caller file name clearing the path
+                line=str(call_frame[1][2]),
+                func=call_frame[1][3]
+            )
+
+        log_units.update(
+            pid=os.getpid()
+        )
 
         log_line = self._get_line(
             *args,
-            level=level, pid=pid, module=file_name, func=func_name, line=code_line_num,
+            **log_units,
             **kwargs
         )
 

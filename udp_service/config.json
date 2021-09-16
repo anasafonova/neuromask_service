@@ -13,15 +13,13 @@
     "json": true,
     "log_dir": "log",
     "log_file": "neuroservice.log",
-    "level": "DEBUG"
+    "level": "INFO",
+    "stdout": true,
+    "reflect": false
   },
   "paths": {
-    "packet_struct" : "/home/anastasiia/PycharmProjects/neuro/udp_service/packet.json",
-    "rawpath": "/home/anastasiia/PycharmProjects/neuro/udp_service/in",
-    "jsonpath": "/home/anastasiia/PycharmProjects/neuro/udp_service/out"
-  },
-  "output" : {
-    "row_count": 1
+    "rawpath": "in",
+    "jsonpath": "out"
   },
   "sensors": {
     "16": "eco2", "17": "o2", "18": "t_body", "19": "humidity",

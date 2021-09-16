@@ -32,9 +32,12 @@ def main(config_file):
 
     while 1:
         packets = reader.read_data()
+
         for packet in packets:
             data = parser.parse_packet(packet)
             writer.write_line(data)
+
+        sleep(0.0001)
 
 
 if __name__ == '__main__':

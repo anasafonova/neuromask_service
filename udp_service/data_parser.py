@@ -7,7 +7,9 @@ from scapy.all import *
 
 class BasicParser:
 
-    def __init__(self, logger: Logger, sensors: dict, pattern=[]):
+    def __init__(self, logger: Logger, sensors: dict, pattern=None):
+        if pattern is None:
+            pattern = []
         self.logger = logger
         self.sensors = sensors
         self.pattern = pattern  # To be used with packet_struct pattern
@@ -57,7 +59,7 @@ class BasicParser:
 
     def parse_packet(self, scapy_packet):
         result = {}
-        self.logger.log(f'Received: {scapy_packet}')
+        self.logger.log(f'Received: {scapy_packet}', level='debug')
 
         try:
             host = ""
@@ -78,7 +80,6 @@ class BasicParser:
         packet_struct = self.pattern
         cursor = 0
 
-        self.logger.log(f'Received: {packet}')
         data = {}
         cols = ['_time']
 
@@ -105,8 +106,9 @@ class BasicParser:
                         field_ = packet_struct[index + t]
                         if field_["data"]:
                             if field_["required"]:
-                                self.logger.log(
-                                    f"Value: {int.from_bytes(packet[cursor:cursor + field_['len']], byteorder='little', signed=False)}")
+                                # self.logger.log(
+                                #     f"Value: {int.from_bytes(packet[cursor:cursor + field_['len']], byteorder='little', signed=False)}",
+                                # )
                                 (value, cursor) = self.get_value(packet, field_["type"], field_["len"], cursor)
                                 self.logger.log(f'Got data', value=value, pos=cursor, level="debug")
                                 if "expected" in field_.keys():
