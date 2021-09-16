@@ -46,13 +46,17 @@ def main(config_file):
             procs = []
             for _ in range(cores):
                 packets = reader.read_data()
-                p = Process(target=process_packets, args=(conf, packets))
-                p.start()
-                procs.append(p)
+
+                if packets:
+                    p = Process(target=process_packets, args=(conf, packets))
+                    p.start()
+                    procs.append(p)
+
             for proc in procs:
                 proc.join()
         else:
             process_packets(conf, reader.read_data())
+
         sleep(0.0001)
 
 
