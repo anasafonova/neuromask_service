@@ -22,7 +22,7 @@ class UdpService():
         subprocess.Popen(
             f'tcpdump -C {self.inputfile_size} -G {self.inputfile_rotate_time} ' +
             f'-W {self.inputfile_num} -i any -n udp port {self.port} ' +
-            f'-w {self.inputpath} -Z root',
+            f'-w {self.inputpath + "/neuromask.pcap"} -Z root',
             shell=True, close_fds=True)
 
     def get_packet(self, client, msg):

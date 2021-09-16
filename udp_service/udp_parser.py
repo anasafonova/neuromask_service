@@ -6,7 +6,7 @@ import struct
 import json
 from config import import_config
 
-from scapy.layers.inet import UDP
+from scapy.layers.inet import UDP, IP
 
 num_packets = 0
 outfile_num = 0
