@@ -4,6 +4,7 @@ from multiprocessing import Process
 from data_parser import BasicParser
 from data_reader import DataReader
 from data_writer import DataWriter
+from data_service import BasicService
 from logger import logger
 from config import import_config
 
@@ -31,6 +32,16 @@ def main(config_file):
         **conf.get('logging')
     )
     logger.log("Logger inited.")
+
+    service = BasicService(logger,
+                           host=conf.get('connection', {}).get('host'),
+                           port=conf.get('connection', {}).get('port'),
+                           base_path=conf.get('paths', {}).get('rawpath'),
+                           batch_size=conf.get('tcpdump', {}).get('batchsize'),
+                           num_files=conf.get('tcpdump', {}).get('num_files'),
+                           rotate_time=conf.get('tcpdump', {}).get('rotate_time'))
+
+    service.listen()
 
     reader = DataReader(
         logger,

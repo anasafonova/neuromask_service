@@ -1,6 +1,5 @@
 from pathlib import Path
 from scapy.all import *
-from scapy.layers.inet import UDP
 from logger import Logger
 
 class DataReader:

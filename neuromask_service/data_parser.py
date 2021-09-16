@@ -68,7 +68,7 @@ class BasicParser:
                 host = scapy_packet[IP].src + ":"
             if UDP in scapy_packet:
                 host += str(scapy_packet[UDP].sport)
-            self.logger.log(f"Received packet", host=host)
+            self.logger.log(f"Received packet", host=host, level='debug')
             result = self.parse_payload(bytes(scapy_packet[UDP].payload))
             result["host"] = host
         except Scapy_Exception as e:
@@ -98,7 +98,7 @@ class BasicParser:
             if field["purpose"] == "loop":
                 if field.get('decreased_value'):
                     cond = eval(field["decreased_value"])
-                    self.logger.log(f'Condition {field.get("decreased_value")}, {cond}')
+                    self.logger.log(f'Condition {field.get("decreased_value")}, {cond}', level='debug')
                     j = 0
                     index = packet_struct.index(field)
                     t = 1
